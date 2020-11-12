@@ -15,26 +15,46 @@ namespace _8lab
 {
 
     //Класс, который хранит значение информационного поля и ссылку на следующий элемент (то есть это наш список)
-    class Node
+    internal class Node<T>
     {
-        public string Artist { get; set; }
-        public Node Next { get; set; }
+        public T Artist { get; set; }
+        public Node<T> Next { get; set; }
+
+        
     }
 
 
 
     //Основной класс, в котором определяются методы для работы со списком и т.д.
-    class ArtistList
+    class ArtistList<T> : ICollection<T> where T : class
     {
 
-        Node[] Artists;
+
+
+        Node<T>[] Artists;
+        public List<T> Collections;
+        public void AddObject(T value)
+        {
+            Collections.Add(value);
+        }
+        public void DeleteObject(T obj)
+        {
+            Collections.Remove(obj);
+        }
+        public void ShowAll()
+        {
+            foreach (T o in Collections)
+            {
+                Console.WriteLine(o.ToString());
+            }
+        }
         public ArtistList(int i)
         {
-            Artists = new Node[i];
+            Artists = new Node<T>[i];
         }
 
         //Индексатор
-        public string this[int index]
+        public T this[int index]
         {
             get
             {
@@ -103,8 +123,8 @@ namespace _8lab
             }
         }
 
-        private Node Head { get; set; }
-        private Node Current { get; set; }
+        private Node<T> Head { get; set; }
+        private Node<T> Current { get; set; }
         private int size;
         public int Size { get; set; }
         public static Owner owner;
@@ -120,11 +140,13 @@ namespace _8lab
             Console.WriteLine($"Владелец: {owner.Name}\nИдентификатор владельца: {owner.ID}\nКомпания владельца: {owner.Organization}\nДата создания: {date.DateOfCreation}");
         }
 
+
+
         //Добавление элемента в список
-        public void Push(string artist)
+        public void Push(T Artist)
         {
             Size++;
-            var node = new Node() { Artist = artist };
+            var node = new Node<T>() { Artist = Artist };
             if (Head == null)
             {
                 Head = node;
@@ -140,7 +162,7 @@ namespace _8lab
         //Вывод значений всех элементов списка
         public void Output()
         {
-            Node n = Head;
+            Node<T> n = Head;
             while (n != null)
             {
                 Console.WriteLine($"Исполнитель: {n.Artist}");
@@ -154,8 +176,8 @@ namespace _8lab
 
             if ((Head != null) && (number < Size) && (number >= 0))
             {
-                Node n = Head;
-                Node prevNode = null;
+                Node<T> n = Head;
+                Node<T> prevNode = null;
                 if (number == 0)
                 {
                     n = n.Next;
@@ -184,11 +206,12 @@ namespace _8lab
             }
         }
 
-        public Node GetHead()
+        public Node<T> GetHead()
         {
             return this.Head;
         }
 
+        /*
         //Перегрузка бинарного оператора +
         public static ArtistList operator +(ArtistList list, string item)
         {
@@ -274,6 +297,19 @@ namespace _8lab
                 }
             }
             return false;
+        }*/
+
+
+
+    }
+
+    class ListOutOfRange : Exception
+    {
+        public string message = "Вы вышли за пределы списка!";
+        public string diagnostics = "Уберите лишний Push!";
+        public ListOutOfRange(string message) : base(message)
+        {
+
         }
     }
 
@@ -284,48 +320,74 @@ namespace _8lab
         {
             /*Console.WriteLine("Введите размер списка!");
             int Size = Convert.ToInt32(Console.ReadLine());*/
-            ArtistList a1 = new ArtistList(5);
+            ArtistList<string> a1 = new ArtistList<string>(5);
             a1.Push("Linkin Park");
             a1.Push("Mike Shinoda");
             a1.Push("Grey Daze");
             a1.Push("Dead By Sunrise");
             //a1.Push("Fort Minor");
 
-            ArtistList a2 = new ArtistList(5);
-            a2.Push("Yonaka");
-            a2.Push("Imagine Dragons");
-            a2.Push("twenty one pilots");
-            a2.Push("Kasabian");
-            a2.Push("grandson");
+            bool switcher = false;
+            try
+            {
+                ArtistList<string> a2 = new ArtistList<string>(5);
+                a2.Push("Yonaka");
+                a2.Push("Imagine Dragons");
+                a2.Push("twenty one pilots");
+                a2.Push("Kasabian");
+                a2.Push("grandson");
+                a2.Push("Nizkiz");
+                if(a2.Size > 5)
+                {
+                    throw new ListOutOfRange("Вы вышли за пределы списка!");
+                }
+            }
+
+            catch (ListOutOfRange ex)
+            {
+                Console.WriteLine(ex.Message + "\n" + ex.Source);
+                switcher = true;
+            }
+            finally
+            {
+                if (switcher)
+                {
+                    Console.WriteLine("Исключение обработано");
+                }
+                else
+                {
+                    Console.WriteLine("Исключение не обработано либо не произошло");
+                }
+            }
 
             Console.WriteLine("\nПервый список:");
             a1.Output();
-            Console.WriteLine("\nДобавим-ка Skillet в список");
-            a1 = a1 + "Skillet";
-            a1.Output();
+            //Console.WriteLine("\nДобавим-ка Skillet в список");
+            //a1 = a1 + "Skillet";
+            //a1.Output();
 
-            if (a1)
+            /*if (a1)
             {
                 Console.WriteLine("\nЭлементы списка a1 упорядочены.");
             }
             else
                 Console.WriteLine("\nЭлементы списка a1 НЕ упорядочены.");
-
-            Console.WriteLine("\nДо использования перегруженного оператора --:");
+            */
+            /*Console.WriteLine("\nДо использования перегруженного оператора --:");
             a2.Output();
             a2 = a2--;
             //a2.DeleteNode(0);
             Console.WriteLine("\nПосле использования перегруженного оператора --:");
-            a2.Output();
-            ArtistList.OwnerInfo();
-            Console.WriteLine($"\nStringCounter: {a2.StringCounter()}");
+            a2.Output();*/
+            ArtistList<string>.OwnerInfo();
+            /*Console.WriteLine($"\nStringCounter: {a2.StringCounter()}");
             Console.WriteLine($"isNullElem: {a1.isNullElem()}");
             a2.SumOfStrings();
-            a1.FirstAndLastString();
+            a1.FirstAndLastString();*/
         }
     }
 
-    public static class myListExtension
+    /*public static class myListExtension
     {
         internal static int StringCounter(this ArtistList a)
         {
@@ -384,4 +446,5 @@ namespace _8lab
             Console.WriteLine($"Самое последнее слово в алфавитном порядке: {last}");
         }
     }
+*/
 }
